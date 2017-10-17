@@ -1,0 +1,52 @@
+CC=mpixlc
+CXX=mpixlcxx
+
+#common
+CFLAGS=-O2 -g -qmaxmem=-1 #-S #-O3
+
+ve=$(findstring vesta, ${HOSTNAME})
+ce=$(findstring cetus, ${HOSTNAME})
+co=$(findstring cori, ${HOSTNAME})
+th=$(findstring theta, ${HOSTNAME})
+
+ifeq ($(ve), vesta)
+  DEFINES += -DBGQ -DVESTA
+else ifeq ($(ce), "cetus")
+  $(info $(ce))
+  DEFINES += -DBGQ -DCETUS
+else ifeq ($(co), cori)
+  $(info $(co))
+  DEFINES += -DKNL -DCORI 
+else ifeq ($(th), theta)
+  $(info $(th))
+  DEFINES += -DKNL -DTHETA 
+endif 
+
+DEFINES += -DDEBUG  
+
+LIBHPM = -L/soft/perftools/hpctw/lib -lmpihpm 
+LIBBGPM = -L/bgsys/drivers/ppcfloor/bgpm/lib -lbgpm -lrt -lstdc++ 
+LIBMPITRACE =-L/soft/perftools/hpctw/lib -lmpitrace
+LIBUTILS =-L/projects/Performance/preeti/utils -lbgqutils 
+LIBALGO = -L./ -lalgo
+LIBS += $(LIBALGO) 
+INC += -I/projects/Performance/preeti/utils	
+
+SRCS = contiguous.cxx	
+
+OBJS = 	$(SRCS:.cxx=.o)
+
+TARGET = testcase
+
+all:    $(TARGET)
+		@echo Compilation done.
+
+%.o:%.cxx
+		$(CXX) $(CFLAGS) -c $< -o $@ $(INC) $(LIBS) $(DEFINES)
+
+$(TARGET): $(OBJS) 
+		$(CXX) $(CFLAGS) -o $(TARGET) $(OBJS) $(INC) $(LIBS) $(DEFINES)   
+
+clean:
+		$(RM) *.o *~ $(TARGET)
+
