@@ -261,7 +261,7 @@ int MPI_File_open(MPI_Comm comm, char *filename, int amode,
                   MPI_Info info, MPI_File *fh)
 {
 
-  if (myrank < 2) printf("new open function executed\n");
+  //if (myrank < 2) printf("new open function executed\n");
   return PMPI_File_open(comm, filename, amode, info, fh);
 }
 
@@ -269,7 +269,7 @@ int MPI_File_write_at(MPI_File fh, MPI_Offset offset, void *buf,
                       int count, MPI_Datatype datatype, MPI_Status *status)
 {
   
-  if (myrank < 2) printf("new write_at executed\n");
+  //if (myrank < 2) printf("new write_at executed\n");
   MPI_Barrier (MPI_COMM_WORLD);
   reroute(fh, offset, buf, count, datatype, status);
 
@@ -280,7 +280,7 @@ int MPI_File_iwrite_at(MPI_File fh, MPI_Offset offset, void *buf,
                       int count, MPI_Datatype datatype, MPIO_Request *request)
 {
   
-  if (myrank < 2) printf("new iwrite function executed\n");
+  //if (myrank < 2) printf("new iwrite function executed\n");
   
   MPI_Barrier (MPI_COMM_WORLD);
 
