@@ -114,8 +114,8 @@ void * bgq_malloc(size_t n)
 void reroute (MPI_File fh, MPI_Offset offset, void *buf,
               int count, MPI_Datatype datatype, MPI_Status *status)
 {
-  MPI_Request *req, sendreq; //, *wrequest; 
-  MPI_Status sendst, stat; //, status; 
+  MPI_Request *req, sendreq;  //, *wrequest; 
+  MPI_Status sendst, stat;    //, status; 
 
   int result, idx;
 
@@ -124,7 +124,7 @@ void reroute (MPI_File fh, MPI_Offset offset, void *buf,
   //If I have been assigned a new bridge node, send data 
    int index = (nodeID*ppn) % midplane ; 
    if (newBridgeNode[index] != -1) {  
-     int  myBridgeRank = bridgeRanks[newBridgeNode[index]] + coreID; 
+     int myBridgeRank = bridgeRanks[newBridgeNode[index]] + coreID; 
      MPI_Isend (buf, count, datatype, myBridgeRank, myBridgeRank, MPI_COMM_WORLD, &sendreq);  
      MPI_Wait (&sendreq, &sendst);
    }
@@ -176,7 +176,7 @@ void reroute (MPI_File fh, MPI_Offset offset, void *buf,
 }
 
 void reroutei (MPI_File fh, MPI_Offset offset, void *buf,
-              int count, MPI_Datatype datatype, MPIO_Request *request)
+              int count, MPI_Datatype datatype, MPI_Request *request)
 {
 
   MPI_Request *req, sendreq, *wrequest; 
@@ -186,18 +186,18 @@ void reroutei (MPI_File fh, MPI_Offset offset, void *buf,
 
   //If I am not a bridge node 
   if (bridgeNodeInfo[1] > 1) {
-  //If I have been assigned a new bridge node, send data 
+   //If I have been assigned a new bridge node, send data 
    int index = (nodeID*ppn) % midplane ; 
-   if(newBridgeNode[index] != -1) {  
-     int  myBridgeRank = bridgeRanks[newBridgeNode[index]] + coreID; 
+   if (newBridgeNode[index] != -1) {  
+     int myBridgeRank = bridgeRanks[newBridgeNode[index]] + coreID; 
      MPI_Isend (buf, count, datatype, myBridgeRank, myBridgeRank, MPI_COMM_WORLD, &sendreq);  
      MPI_Wait (&sendreq, &sendst);
    }
-  //If I have not been assigned a new bridge node, write 
+   //If I have not been assigned a new bridge node, write 
    else {
      result = PMPI_File_iwrite_at (fh, offset, buf, count, datatype, request);
      if (result != MPI_SUCCESS) 
-      prnerror (result, "nonBN MPI_File_write_at Error:");
+       prnerror (result, "nonBN MPI_File_iwrite_at Error:");
      MPI_Wait (request, &status);
    }
   }

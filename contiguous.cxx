@@ -53,9 +53,9 @@ int writeFile(dataBlock *datum, int count)
 		MPIO_Request req_iw;
 		MPI_Status st_iw;
 		result = MPI_File_iwrite_at (fileHandle, (MPI_Offset)rank*count*sizeof(double), datum->getAlphaBuffer(), count, MPI_DOUBLE, &req_iw);
-		if (result != MPI_SUCCESS) 
-			prnerror (result, "MPI_File_iwrite_at error:");
-		MPI_Wait(&req_iw, &st_iw);
+//		if (result != MPI_SUCCESS) 
+	//		prnerror (result, "MPI_File_iwrite_at error:");
+	//	MPI_Wait(&req_iw, &st_iw);
 	 }
   }
   else if (collective == 1) {
