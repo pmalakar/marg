@@ -8,8 +8,9 @@
 boot-block --reboot
  
 NODES=$1
+EXE=./testcase
 
-for PROG in testcase
+for PROG in ${EXE}
 do
 for iter in 1 # 2 
 do
