@@ -21,7 +21,7 @@ def runcmd (node):
 
 	return jobid.strip()
 
-for iter in range (1, 2):
+for iter in range (2, 3):
  for node in nodes:
 		print '\nStarting on ' + str(node) + ' nodes' #+ str(rank) + ' ranks per node'
 		jobid = runcmd(node)
