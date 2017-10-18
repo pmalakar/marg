@@ -11,7 +11,7 @@ NODES=$1
 EXE1=indep
 EXE2=marg
 
-for PROG in ${EXE1} ${EXE2}
+for PROG in ${EXE1} #${EXE2}
 do
 for iter in 1 # 2 
 do
@@ -41,7 +41,7 @@ do
 
 	runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs "OMP_MAX_NUM_THREADS=${THRD}" : ${PROG} ${MSG} ${collective} ${blocking} ${type} ${streams} > ${OUTPUT}
 
-	#continue;
+	continue;
 
  	rm -f dummy*
 	runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs "OMP_MAX_NUM_THREADS=${THRD}" --envs MUSPI_NUMINJFIFOS=2 MUSPI_NUMRECFIFOS=2 PAMID_RZV_LOCAL=4M --envs "PAMID_STATISTICS=1" --envs "PAMID_VERBOSE=1" : ${PROG} ${MSG} ${coalesced} ${blocking} ${type} ${streams} > ${OUTPUT}_numfifos_2_rzvlocal_4M

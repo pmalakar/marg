@@ -207,7 +207,7 @@ void reroutei (MPI_File fh, MPI_Offset offset, void *buf,
     //shuffledNodesData = new double *[myWeight];
     if (sizeof(datatype) == sizeof(MPI_DOUBLE)) 
       shuffledNodesData = (double **) bgq_malloc (myWeight * sizeof(double));
-
+    
     if (shuffledNodesData == NULL)
       printf("\n%d: Error in allocating %ld bytes\n", myrank, myWeight * sizeof (double));
 
@@ -260,8 +260,7 @@ int MPI_Init( int *argc, char ***argv )
 int MPI_File_open(MPI_Comm comm, char *filename, int amode,
                   MPI_Info info, MPI_File *fh)
 {
-
-  //if (myrank < 2) printf("new open function executed\n");
+  if (myrank < 3) printf("Rank %d new open function executed\n", myrank);
   return PMPI_File_open(comm, filename, amode, info, fh);
 }
 
@@ -269,9 +268,9 @@ int MPI_File_write_at(MPI_File fh, MPI_Offset offset, void *buf,
                       int count, MPI_Datatype datatype, MPI_Status *status)
 {
   
-  //if (myrank < 2) printf("new write_at executed\n");
-  MPI_Barrier (MPI_COMM_WORLD);
+  if (myrank < 3) printf("Rank %d new write_at executed %u\n", myrank, offset);
   reroute(fh, offset, buf, count, datatype, status);
+  if (myrank < 6 && myrank > 3) printf("Rank %d back from reroute %u\n", myrank, offset);
 
   return PMPI_File_write_at(fh, offset, buf, count, datatype, status);
 }
@@ -280,14 +279,11 @@ int MPI_File_iwrite_at(MPI_File fh, MPI_Offset offset, void *buf,
                       int count, MPI_Datatype datatype, MPIO_Request *request)
 {
   
-  //if (myrank < 2) printf("new iwrite function executed\n");
-  
-  MPI_Barrier (MPI_COMM_WORLD);
-
+  if (myrank < 2) printf("rank %d new iwrite_at function executed\n", myrank);
+ // MPI_Barrier (MPI_COMM_WORLD);
   reroutei(fh, offset, buf, count, datatype, request);
 
-  if (myrank < 20)
-  printf ("%d: am back from reroutei\n", myrank); 
+  if (myrank < 2) printf ("%d: am back from reroutei\n", myrank); 
 
   return 0;
 
