@@ -8,21 +8,23 @@
 boot-block --reboot
  
 NODES=$1
-EXE=./testcase
+EXE1=indep
+EXE2=marg
 
-for PROG in ${EXE}
+for PROG in ${EXE1} ${EXE2}
 do
 for iter in 1 # 2 
 do
 for THRD in 1 #2 4 8 16
 do
-for ppn in 2 4 #8 #4 #2 1
+for ppn in 1
 do
-for MSG in 16 128 #32 256 #512 1024 2048 # 4096 8192
+for MSG in 256 #512 1024 2048 # 4096 8192
 do 
- for collective in 0   # for type in 0 1 2 
+ for collective in 0   
+# for type in 0 1 2 
  do
- for blocking in 1 0 
+ for blocking in 0 #1 
  do
  for streams in 0 #1 #2 #0 #1 2
  do
@@ -39,7 +41,7 @@ do
 
 	runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs "OMP_MAX_NUM_THREADS=${THRD}" : ${PROG} ${MSG} ${collective} ${blocking} ${type} ${streams} > ${OUTPUT}
 
-	continue;
+	#continue;
 
  	rm -f dummy*
 	runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs "OMP_MAX_NUM_THREADS=${THRD}" --envs MUSPI_NUMINJFIFOS=2 MUSPI_NUMRECFIFOS=2 PAMID_RZV_LOCAL=4M --envs "PAMID_STATISTICS=1" --envs "PAMID_VERBOSE=1" : ${PROG} ${MSG} ${coalesced} ${blocking} ${type} ${streams} > ${OUTPUT}_numfifos_2_rzvlocal_4M
