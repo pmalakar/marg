@@ -140,13 +140,13 @@ void reroute (MPI_File fh, MPI_Offset offset, void *buf,
 
     //Allocation  
     //shuffledNodesData = new double *[myWeight];
-    if (datatype == MPI_DOUBLE) 
+    if (sizeof(datatype) == sizeof(MPI_DOUBLE)) 
       shuffledNodesData = (double **) bgq_malloc (myWeight * sizeof(double));
 
     if (shuffledNodesData == NULL)
       printf("\n%d: Error in allocating %ld bytes\n", myrank, myWeight * sizeof (double));
 
-    if (datatype == MPI_DOUBLE) 
+    if (sizeof(datatype) == sizeof(MPI_DOUBLE)) 
      for (int i=0; i<myWeight; i++) { 
 		  //shuffledNodesData[i] = new double[count];
 		   shuffledNodesData[i] = (double *) malloc (count * sizeof(double));
@@ -205,13 +205,13 @@ void reroutei (MPI_File fh, MPI_Offset offset, void *buf,
 
     //Allocation  
     //shuffledNodesData = new double *[myWeight];
-    if (datatype == MPI_DOUBLE)
+    if (sizeof(datatype) == sizeof(MPI_DOUBLE)) 
       shuffledNodesData = (double **) bgq_malloc (myWeight * sizeof(double));
 
     if (shuffledNodesData == NULL)
       printf("\n%d: Error in allocating %ld bytes\n", myrank, myWeight * sizeof (double));
 
-    if (datatype == MPI_DOUBLE) 
+    if (sizeof(datatype) == sizeof(MPI_DOUBLE)) 
      for (int i=0; i<myWeight; i++) { 
 		  //shuffledNodesData[i] = new double[count];
 		   shuffledNodesData[i] = (double *) malloc (count * sizeof(double));

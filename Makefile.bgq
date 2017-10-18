@@ -36,7 +36,7 @@ SRCS = contiguous.cxx
 
 OBJS = 	$(SRCS:.cxx=.o)
 
-TARGET = testcase
+TARGET = marg
 
 all:    $(TARGET)
 		@echo Compilation done.
