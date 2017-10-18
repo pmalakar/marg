@@ -6,13 +6,15 @@ CFLAGS=-O2 -g -qmaxmem=-1 #-S #-O3
 
 ve=$(findstring vesta, ${HOSTNAME})
 ce=$(findstring cetus, ${HOSTNAME})
+mi=$(findstring mira, ${HOSTNAME})
 co=$(findstring cori, ${HOSTNAME})
 th=$(findstring theta, ${HOSTNAME})
 
 ifeq ($(ve), vesta)
   DEFINES += -DBGQ -DVESTA
-else ifeq ($(ce), "cetus")
-  $(info $(ce))
+else ifeq ($(ce), cetus)
+  DEFINES += -DBGQ -DCETUS
+else ifeq ($(mi), mira)
   DEFINES += -DBGQ -DCETUS
 else ifeq ($(co), cori)
   $(info $(co))
