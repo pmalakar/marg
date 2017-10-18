@@ -1,4 +1,4 @@
-mpixlcxx -c route.cxx personality.cxx neighbour.cxx algorithm.cxx -DBGQ -DVESTA 
+mpixlcxx -c route.cxx personality.cxx neighbour.cxx algorithm.cxx -DBGQ -DCETUS 
 rm libalgo.a ; ar -cvq libalgo.a route.o personality.o neighbour.o algorithm.o
 make clean -f Makefile.bgq
 make -f Makefile.bgq
