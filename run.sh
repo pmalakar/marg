@@ -11,20 +11,20 @@ NODES=$1
 EXE1=indep
 EXE2=marg
 
-for PROG in ${EXE1} #${EXE2}
+for PROG in ${EXE2} ${EXE1}
 do
 for iter in 1 # 2 
 do
 for THRD in 1 #2 4 8 16
 do
-for ppn in 1
+for ppn in 4  
 do
-for MSG in 256 #512 1024 2048 # 4096 8192
+for MSG in 4 8 # 1024 2048 # 4096 8192
 do 
  for collective in 0   
 # for type in 0 1 2 
  do
- for blocking in 0 #1 
+ for blocking in 1 #1 
  do
  for streams in 0 #1 #2 #0 #1 2
  do

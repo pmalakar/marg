@@ -7,7 +7,7 @@ nodes = [512]
 def runcmd (node):
 
 	script = './run.sh ' + str(node) 
-	cmd = 'qsub -A Performance -t 01:00:00 -n '+str(node)+' --mode script '+script
+	cmd = 'qsub -A Performance -t 00:30:00 -n '+str(node)+' --mode script '+script   #VST-00400-33771-1024   VST-00400-33731-512
 	print 'Executing ' + cmd
 	jobid = Popen(cmd, shell=True, stdout=PIPE).communicate()[0]
 	print 'Jobid : ' + jobid

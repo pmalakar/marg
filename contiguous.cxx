@@ -88,6 +88,7 @@ void file_write(dataBlock *datum) {
 	/*
 	 * * * * * * * * * Independent MPI-IO to IO nodes from all compute nodes - shared file * * * * * * * *
    */
+/*
   MPI_File_open (MPI_COMM_WORLD, fileNameION, mode, MPI_INFO_NULL, &fileHandle);
   for (int i=1; i<=SKIP; i++)
    totalBytes += writeFile(datum, count);
@@ -97,6 +98,7 @@ void file_write(dataBlock *datum) {
   tIOEnd = MPI_Wtime();
   tION = (tIOEnd - tIOStart)/MAXTIMES;
   MPI_File_close (&fileHandle);
+*/
 #endif
 	/*
 	 * * * * * * * * * Independent MPI-IO to file system from all compute nodes - shared file * * * * * * * *
