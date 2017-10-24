@@ -1,25 +1,31 @@
-
 #common
-CFLAGS=-O2 -g -qmaxmem=-1 #-S #-O3
+CFLAGS=-O2 -g 
 
 ve=$(findstring vesta, ${HOSTNAME})
 ce=$(findstring cetus, ${HOSTNAME})
-mi=$(findstring mira, ${HOSTNAME})
-co=$(findstring cori, ${HOSTNAME})
+mi=$(findstring mira,  ${HOSTNAME})
+co=$(findstring cori,  ${HOSTNAME})
 th=$(findstring theta, ${HOSTNAME})
 
 ifeq ($(ve), vesta)
+  $(info $(ve))
   DEFINES += -DBGQ -DVESTA
   CC=mpixlc
   CXX=mpixlcxx
+  CFLAGS+=-qmaxmem=-1 
+  INC += -I/projects/Performance/preeti/utils	
 else ifeq ($(ce), cetus)
   DEFINES += -DBGQ -DCETUS
   CC=mpixlc
   CXX=mpixlcxx
+  CFLAGS+=-qmaxmem=-1 
+  INC += -I/projects/Performance/preeti/utils	
 else ifeq ($(mi), mira)
   DEFINES += -DBGQ -DCETUS
   CC=mpixlc
   CXX=mpixlcxx
+  CFLAGS+=-qmaxmem=-1 
+  INC += -I/projects/Performance/preeti/utils	
 else ifeq ($(co), cori)
   $(info $(co))
   CC=cc
@@ -44,8 +50,6 @@ LIBUTILS =-L/projects/Performance/preeti/utils -lbgqutils
 
 LIBALGO = -L./ -lalgo
 LIBS += #$(LIBALGO) 
-
-INC += -I/projects/Performance/preeti/utils	
 
 SRCS = contiguous.cxx	
 

@@ -84,39 +84,49 @@ do
   APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
   fi
 
-  for STRIPECNT in 8 # 16 24 32 
+  for STRIPECNT in 32 
   do 
-   for STRIPESZ in 8M #2M  
+   for STRIPESZ in 16M #2M  
    do
     for size in 32 1024 4096
     do
-      OUTPUT=output_${nodes}_${RANKS}_R${ppn}_${STRIPECNT}_${STRIPESZ}_${size}_${iter}_${jobid}
+     for collective in 0 1
+     do
+      for blocking in 1 #0
+      do
 
-      ARG=" $size 0 1"
-      #ARG=" $size 0 0 1 0"
-	    echo "Starting $OUTPUT with $ARG"
-      #mkdir pat_${OUTPUT}
-      #export PAT_RT_EXPFILE_DIR=pat_${OUTPUT}
+        OUTPUT=output_${nodes}_${RANKS}_R${ppn}_${STRIPECNT}_${STRIPESZ}_${size}_${collective}_${iter}_${jobid}
 
-      FNAME=TestFile-${RANKS}
-      rm -f $FNAME 2>/dev/null
-      echo "Testing: echo $FNAME"
-      lfs setstripe -c ${STRIPECNT} -S ${STRIPESZ} $FNAME
-      echo "Testing done: echo $FNAME"
-      lfs getstripe $FNAME
+        ARG=" $size ${collective} ${blocking}"
+        #ARG=" $size 0 0 1 0"
 
-      if [[ "$HOST" == *"theta"* ]]; then
-      APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
-		  xtnodestat > xtnodestat.start.${OUTPUT}
-		  qstat -f > qstat.start.${OUTPUT}
-			aprun ${ENVVARS} ${APRUNPARAMS} ${EXE} ${ARG} > ${OUTPUT}
-		  qstat -f > qstat.end.${OUTPUT}
- 			xtnodestat > xtnodestat.end.${OUTPUT}
-      elif [[ "$HOST" == *"cori"* ]]; then
-	    srun ${ENVVARS} -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores $EXE ${ARG} > ${OUTPUT}
-	    #srun $ENVVARS -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores -c ${num_logical_cores} $EXE ${ARG} > $OUTPUT
-      fi
+	      echo "Starting $OUTPUT with $ARG"
+        #mkdir pat_${OUTPUT}
+        #export PAT_RT_EXPFILE_DIR=pat_${OUTPUT}
 
+        FNAME=TestFile-${RANKS}
+        rm -f $FNAME 2>/dev/null
+        echo "Testing: echo $FNAME"
+        lfs setstripe -c ${STRIPECNT} -S ${STRIPESZ} $FNAME
+        echo "Testing done: echo $FNAME"
+        lfs getstripe $FNAME
+
+        if [[ "$HOST" == *"theta"* ]]; then
+          APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
+ 		      xtnodestat > xtnodestat.start.${OUTPUT}
+		      qstat -f > q.start.${OUTPUT}
+			    aprun ${ENVVARS} ${APRUNPARAMS} ${EXE} ${ARG} > ${OUTPUT}
+		      qstat -f > q.end.${OUTPUT}
+ 			    xtnodestat > xtnodestat.end.${OUTPUT}
+        elif [[ "$HOST" == *"cori"* ]]; then
+		      squeue -f > q.start.${OUTPUT}
+	        srun ${ENVVARS} -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores $EXE ${ARG} > ${OUTPUT}
+	        #srun $ENVVARS -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores -c ${num_logical_cores} $EXE ${ARG} > $OUTPUT
+		      squeue -f > q.end${OUTPUT}
+        fi
+
+      done
+     done
     done
    done
   done

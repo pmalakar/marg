@@ -3,10 +3,11 @@
 #include <assert.h>
 #include <mpi.h>
 #include "common.h"
-#include "algorithm.h"
 
 #ifdef KNL
 #include "lustreinfo.h"
+#else
+#include "algorithm.h"
 #endif
 
 #define NAME_LENGTH 256
