@@ -86,7 +86,7 @@ do
 
   for STRIPECNT in 32 
   do 
-   for STRIPESZ in 16M #2M  
+   for STRIPESZ in 8M #2M  
    do
     for size in 32 1024 4096
     do
@@ -119,10 +119,10 @@ do
 		      qstat -f > q.end.${OUTPUT}
  			    xtnodestat > xtnodestat.end.${OUTPUT}
         elif [[ "$HOST" == *"cori"* ]]; then
-		      squeue -f > q.start.${OUTPUT}
+		      squeue > q.start.${OUTPUT}
 	        srun ${ENVVARS} -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores $EXE ${ARG} > ${OUTPUT}
 	        #srun $ENVVARS -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores -c ${num_logical_cores} $EXE ${ARG} > $OUTPUT
-		      squeue -f > q.end${OUTPUT}
+		      squeue > q.end${OUTPUT}
         fi
 
       done
