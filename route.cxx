@@ -1,5 +1,7 @@
 #include "route.h" 
 
+#ifdef BGQ
+
 /*
  * Read the DCR registers to get the routing order 
  * The routing order depends on the partition in which the job runs
@@ -36,6 +38,8 @@ int getRoutingOrder (int *ro) {
 
 	return 0;
 }
+
+#endif
 
 /*
 int main (int argc, char *argv[]) {

@@ -1,7 +1,9 @@
 #ifndef __personality__
 #define __personality__
 
+#ifdef BGQ
 #include <mpix.h>
+#endif
 #include <stdint.h>
 
 //Variables

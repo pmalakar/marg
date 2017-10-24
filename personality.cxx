@@ -10,9 +10,9 @@
 #include <stdint.h>
 #include <assert.h>
 #include <mpi.h>
-#include <mpix.h>
 
 #ifdef BGQ
+#include <mpix.h>
 #include <spi/include/kernel/memory.h>
 #endif
 

@@ -1,9 +1,16 @@
 #!/bin/bash -evx
 ####COBALT -q flat-quad
-#COBALT -t 60
+#COBALT -t 30
 #COBALT -A Performance ###EarlyPerf_theta 
 
-EXE=./testcase
+#SBATCH -p debug
+#SBATCH -t 00:20:00
+#SBATCH -J my_job
+#SBATCH -S 2
+#SBATCH -C knl,quad,cache    ####haswell
+##SBATCH -o my_job.o%j
+
+EXE=./marg
 
 echo "Running Cobalt Job $COBALT_JOBID on $COBALT_PARTNAME."
 
@@ -30,13 +37,30 @@ export MPICH_NEMESIS_ASYNC_PROGRESS=1
 export MPICH_ENV_DISPLAY=1
 export MPICH_MPIIO_HINTS="*:cb_nodes=2"
 
-locfile=loc_${COBALT_JOBSIZE}_${COBALT_JOBID}.txt
-echo ${COBALT_PARTNAME} > $locfile 
-jobmapfile=jobmap_${COBALT_JOBSIZE}_${COBALT_JOBID}.txt
-#python parsejobnodes.py theta.computenodes $locfile > $jobmapfile
 
-aprun -n 1 -N 1 -d 1 -j 1 -r 1 ./location.x
-#aprun -n 1 -N 1 -d 1 -j 1 -r 1 ./info
+if [[ "$HOST" == *"theta"* ]]; then
+  echo "theta"
+  nodes=$COBALT_PARTSIZE
+  jobid=${COBALT_JOBID}
+  locfile=loc_${nodes}_${jobid}.txt
+  echo ${COBALT_PARTNAME} > $locfile 
+  jobmapfile=jobmap_${nodes}_${jobid}.txt
+  #python parsejobnodes.py theta.computenodes $locfile > $jobmapfile
+elif [[ "$HOST" == *"cori"* ]]; then
+  echo "cori"
+  nodes=$SLURM_JOB_NUM_NODES
+  jobid=${SLURM_JOBID}
+  locfile=loc_${nodes}_${jobid}.txt
+  echo ${SLURM_NODELIST} > $locfile 
+fi
+
+
+if [[ "$HOST" == *"theta"* ]]; then
+  aprun -n 1 -N 1 -d 1 -j 1 -r 1 ./location.x
+elif [[ "$HOST" == *"cori"* ]]; then
+  srun -n 1 -N 1 ./location.x
+fi
+
 
 THREADS=1
 #export PAT_RT_SUMMARY=0
@@ -51,18 +75,25 @@ for iter in `seq $startiter $enditer`
 do
  for ppn in 64
  do
-  RANKS=$((${COBALT_PARTSIZE}*$ppn))
+
+  RANKS=$((${nodes}*$ppn))
+
 	echo 
+
+  if [[ "$HOST" == *"theta"* ]]; then
   APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
+  fi
+
   for STRIPECNT in 8 # 16 24 32 
   do 
    for STRIPESZ in 8M #2M  
    do
     for size in 32 1024 4096
     do
-      OUTPUT=output_${COBALT_PARTSIZE}_${RANKS}_R${ppn}_${STRIPECNT}_${STRIPESZ}_${size}_${iter}_${COBALT_JOBID}
+      OUTPUT=output_${nodes}_${RANKS}_R${ppn}_${STRIPECNT}_${STRIPESZ}_${size}_${iter}_${jobid}
 
-      ARG=" $size 0 0 1 0"
+      ARG=" $size 0 1"
+      #ARG=" $size 0 0 1 0"
 	    echo "Starting $OUTPUT with $ARG"
       #mkdir pat_${OUTPUT}
       #export PAT_RT_EXPFILE_DIR=pat_${OUTPUT}
@@ -74,12 +105,18 @@ do
       echo "Testing done: echo $FNAME"
       lfs getstripe $FNAME
 
-	    #srun $ENVVARS -n ${RANKS} -N ${COBALT_PARTSIZE} --cpu_bind=verbose,cores -c ${num_logical_cores} $EXE ${ARG} > $OUTPUT
+      if [[ "$HOST" == *"theta"* ]]; then
+      APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
 		  xtnodestat > xtnodestat.start.${OUTPUT}
 		  qstat -f > qstat.start.${OUTPUT}
 			aprun ${ENVVARS} ${APRUNPARAMS} ${EXE} ${ARG} > ${OUTPUT}
 		  qstat -f > qstat.end.${OUTPUT}
  			xtnodestat > xtnodestat.end.${OUTPUT}
+      elif [[ "$HOST" == *"cori"* ]]; then
+	    srun ${ENVVARS} -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores $EXE ${ARG} > ${OUTPUT}
+	    #srun $ENVVARS -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores -c ${num_logical_cores} $EXE ${ARG} > $OUTPUT
+      fi
+
     done
    done
   done
@@ -87,6 +124,7 @@ do
 	echo 
 	echo "* * * * *"
 	echo 
+
  done
 done
 
