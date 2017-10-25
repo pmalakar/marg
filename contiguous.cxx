@@ -36,7 +36,8 @@ int SKIP = 1;
 int MAXTIMES = 5;
 int MAXTIMESD = 7;
 
-void cleanup() ;
+void startup_() ;
+void cleanup_() ;
 
 int writeFile(dataBlock *datum, int count) 
 {
@@ -108,7 +109,8 @@ void file_write(dataBlock *datum) {
   MPI_File_open (MPI_COMM_WORLD, testFileName, mode, MPI_INFO_NULL, &fileHandle);
 
 #ifdef KNL
-  //get_file_info(testFileName);
+  startup_();
+  //get_file_info(testFileName); //undefined error
 #endif 
 
 	for (int i=1; i<=SKIP; i++)
@@ -214,15 +216,13 @@ int main(int argc, char *argv[]) {
   file_write(datum);
 //  file_read(datum);
 
-  cleanup();
+  cleanup_();
 
   MPI_Finalize();
 
 }
 
-void cleanup() {
-
-  double max_tION, max_tFS;
+void startup_() {
 
   MPI_Info info;
  // char *value = new char[MAXCBNODESLEN];
@@ -233,9 +233,10 @@ void cleanup() {
   
   int flag;
 
- // MPI_File_get_info (fileHandle, &info);
- // MPI_Info_get(info, keycb, MPI_MAX_INFO_VAL, value, &flag);
- // if (!flag) puts ("cb_nodes not defined"); 
+  MPI_File_get_info (fileHandle, &info);
+  MPI_Info_get(info, keycb, MPI_MAX_INFO_VAL, value, &flag);
+  if (!flag) puts ("cb_nodes not defined"); 
+  else printf("cb value %s\n", value);
 
 /*
   int exists, nkeys;
@@ -249,13 +250,19 @@ void cleanup() {
       printf("%3d: key = %s, value = %s\n", rank, key, value);
   }*/
   
+ // MPI_Info_free(&info);
+
+}
+
+void cleanup_() {
+
+  double max_tION, max_tFS;
+
 	MPI_Reduce(&tION, &max_tION, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 	MPI_Reduce(&tFS, &max_tFS, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   if (rank == 0)
-  printf ("0: Times: %d | %6.2f KB | %d %d %s | %4.2lf %4.2lf\n", size, 8.0*count/1024.0, collective, blocking, value, max_tION, max_tFS);
-
- // MPI_Info_free(&info);
+  printf ("0: Times: %d | %6.2f KB | %d %d | %4.2lf %4.2lf\n", size, 8.0*count/1024.0, collective, blocking, max_tION, max_tFS);
 
 }
 

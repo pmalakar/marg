@@ -84,7 +84,7 @@ do
   APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
   fi
 
-  for STRIPECNT in 32 
+  for STRIPECNT in 16 
   do 
    for STRIPESZ in 8M #2M  
    do
@@ -119,10 +119,10 @@ do
 		      qstat -f > q.end.${OUTPUT}
  			    xtnodestat > xtnodestat.end.${OUTPUT}
         elif [[ "$HOST" == *"cori"* ]]; then
-		      squeue > q.start.${OUTPUT}
+		      squeue -l > q.start.${OUTPUT}
 	        srun ${ENVVARS} -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores $EXE ${ARG} > ${OUTPUT}
 	        #srun $ENVVARS -n ${RANKS} -N ${nodes} --cpu_bind=verbose,cores -c ${num_logical_cores} $EXE ${ARG} > $OUTPUT
-		      squeue > q.end${OUTPUT}
+		      squeue -l > q.end.${OUTPUT}
         fi
 
       done
