@@ -18,7 +18,7 @@ else ifeq ($(ce), cetus)
   DEFINES += -DBGQ -DCETUS
   CC=mpixlc
   CXX=mpixlcxx
-  CFLAGS+=-qmaxmem=-1 
+  CFLAGS+=-O2 -g -qmaxmem=-1 -qflag=w -pg
   INC += -I/projects/Performance/preeti/utils	
 else ifeq ($(mi), mira)
   DEFINES += -DBGQ -DCETUS

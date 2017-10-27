@@ -19,7 +19,7 @@ for iter in $startiter
 do
 for THRD in 4 #2 4 8 16
 do
-for ppn in 1  
+for ppn in 4  
 do
 for MSG in 16 # 1024 2048 # 4096 8192
 do 
