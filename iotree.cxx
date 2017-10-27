@@ -297,7 +297,7 @@ int writeFile(dataBlock *datum, int count, int all) {
 			// Post the nonblocking receives for my senders
 			if (coalesced == 1) 
 				getData(myWeight);
-			//non-coalesced
+			// non-coalesced
 			else {
 				for (int i=0; i<myWeight ; i++) {
 					assert(shuffledNodesData);

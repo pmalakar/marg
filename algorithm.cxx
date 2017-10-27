@@ -282,6 +282,7 @@ void reroutei (MPI_File fh, MPI_Offset offset, void *buf,
 
 }
 
+/*
 int MPI_Init( int *argc, char ***argv )
 {
   //printf ("Test %d\n", (*argv)[3]);
@@ -293,6 +294,7 @@ int MPI_Init( int *argc, char ***argv )
 
   return PMPI_Init (argc, argv);
 }
+*/
 
 /*
 int MPI_File_open(MPI_Comm comm, char *filename, int amode,
