@@ -12,7 +12,7 @@ ifeq ($(ve), vesta)
   DEFINES += -DBGQ -DVESTA
   CC=mpixlc
   CXX=mpixlcxx
-  CFLAGS+=-qmaxmem=-1 
+  CFLAGS+=-qsmp=omp -g -pg 
   INC += -I/projects/Performance/preeti/utils	
 else ifeq ($(ce), cetus)
   DEFINES += -DBGQ -DCETUS
@@ -49,7 +49,7 @@ LIBMPITRACE =-L/soft/perftools/hpctw/lib -lmpitrace
 LIBUTILS =-L/projects/Performance/preeti/utils -lbgqutils 
 
 LIBALGO = -L./ -lalgo
-LIBS += #$(LIBALGO) 
+LIBS += $(LIBALGO) 
 
 SRCS = contiguous.cxx	
 

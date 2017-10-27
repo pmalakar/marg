@@ -33,8 +33,8 @@ char *fileNameFSCO = "dummyFileCO";
 char testFileName[NAME_LENGTH];
 
 int SKIP = 1;
-int MAXTIMES = 5;
-int MAXTIMESD = 7;
+int MAXTIMES = 10;
+int MAXTIMESD = 10;
 
 void startup_() ;
 void cleanup_() ;
@@ -108,8 +108,8 @@ void file_write(dataBlock *datum) {
   //MPI_File_open (MPI_COMM_WORLD, fileNameFS, mode, MPI_INFO_NULL, &fileHandle);
   MPI_File_open (MPI_COMM_WORLD, testFileName, mode, MPI_INFO_NULL, &fileHandle);
 
-#ifdef KNL
   startup_();
+#ifdef KNL
   //get_file_info(testFileName); //undefined error
 #endif 
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
   sprintf(testFileName,"TestFile-%d",size);
 
 #ifndef KNL
-  if (!collective) init_(argc, argv);
+  if (!collective) init_bgq(argc, argv);
 #endif
 
   count = atoi(argv[1]) * oneKB;
@@ -217,6 +217,10 @@ int main(int argc, char *argv[]) {
 //  file_read(datum);
 
   cleanup_();
+
+#ifndef KNL
+  if (!collective) fini_bgq();
+#endif
 
   MPI_Finalize();
 
@@ -250,7 +254,7 @@ void startup_() {
       printf("%3d: key = %s, value = %s\n", rank, key, value);
   }*/
   
- // MPI_Info_free(&info);
+  MPI_Info_free(&info);
 
 }
 

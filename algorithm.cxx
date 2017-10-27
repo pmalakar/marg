@@ -36,6 +36,8 @@
 #include "hwcnt.h"
 #endif
 
+int MAX_BUFSIZE=16384;
+
 //BGQ specific
 static int myWeight;
 int numNodes, myBNIdx;
@@ -59,6 +61,9 @@ int collector;
 MPI_Comm MPI_COMM_core, MPI_COMM_NODE;
 MPI_Comm MPI_COMM_MIDPLANE;
 MPI_Comm COMM_BRIDGE_NODES, COMM_BRIDGE_NODES_core;
+
+MPI_Request *req, sendreq;  //, *wrequest; 
+MPI_Status sendst, stat;    //, status; 
 
 #ifdef CETUS
 int BAG = 256;
@@ -114,8 +119,6 @@ void * bgq_malloc(size_t n)
 void reroute (MPI_File fh, MPI_Offset offset, void *buf,
               int count, MPI_Datatype datatype, MPI_Status *status)
 {
-  MPI_Request *req, sendreq;  //, *wrequest; 
-  MPI_Status sendst, stat;    //, status; 
 
   int result, idx;
 
@@ -155,7 +158,6 @@ void reroute (MPI_File fh, MPI_Offset offset, void *buf,
     // Write out my data first, before waiting for senders' data 
     result = PMPI_File_write_at (fh, offset, buf, count, datatype, status); 
 
-    req = (MPI_Request *) bgq_malloc (myWeight * sizeof(MPI_Request)); 
     int info[myWeight][2];
     for (int i=0; i<myWeight ; i++) { 
 		  //printf ("BN %d will receive 2 ints from shuffledNodes[%d]=%d\n", myrank, i, shuffledNodes[i]);
@@ -170,8 +172,8 @@ void reroute (MPI_File fh, MPI_Offset offset, void *buf,
 
     //Allocation  
     //shuffledNodesData = new double *[myWeight];
-    if (sizeof(datatype) == sizeof(MPI_DOUBLE)) 
-      shuffledNodesData = (double **) bgq_malloc (myWeight * sizeof(double *));
+
+ //   double smtime, ttime=0;
 
     if (shuffledNodesData == NULL)
       printf("\n%d: Error in allocating %ld bytes\n", myrank, myWeight * sizeof (double));
@@ -183,8 +185,14 @@ void reroute (MPI_File fh, MPI_Offset offset, void *buf,
 		   printf ("BN %d received %d %d from %d\n", myrank, info[i][0], info[i][1], shuffledNodes[i]);
        fflush(stdout);
 #endif
-		   shuffledNodesData[i] = (double *) malloc (info[i][1] * sizeof(double));
+      // smtime = MPI_Wtime();
+		   //shuffledNodesData[i] = (double *) malloc (info[i][1] * sizeof(double));
+		   if (info[i][1] > MAX_BUFSIZE) { printf ("%d Error: need bigger array %d\n", myrank, info[i][1]); exit(1); }
+
+      // ttime += MPI_Wtime() - smtime;
 	   }
+
+    //printf ("malloc times %d: %lf\n", myrank, ttime); //max across ranks per malloc is only 1 ms
 
     // recv
     for (int i=0; i<myWeight ; i++) {
@@ -312,11 +320,12 @@ int MPI_File_iwrite_at(MPI_File fh, MPI_Offset offset, void *buf,
   
   //if (myrank < 2) printf("rank %d new iwrite_at function executed\n", myrank);
  // MPI_Barrier (MPI_COMM_WORLD);
-  reroutei(fh, offset, buf, count, datatype, request);
+  //reroutei(fh, offset, buf, count, datatype, request);
 
   //if (myrank < 2) printf ("%d: am back from reroutei\n", myrank); 
 
-  return 0;
+  //return 0;
+  return PMPI_File_iwrite_at(fh, offset, buf, count, datatype, request);
 
 }
 
@@ -1023,9 +1032,9 @@ void traverse (int index, int level) {
         k++;
         shuffledNodes[k] = lb + j + coreID;
 
-//#ifdef DEBUG
+#ifdef DEBUG
         printf("%d:(%d,%d) k=%d newBridgeNode[%d]=%d bn=%d %d\n", myrank, nodeID, coreID, k, j, newBridgeNode[j], bridgeRanks[newBridgeNode[j]], shuffledNodes[k]); 
-//#endif
+#endif
 
       }
     }
@@ -1044,8 +1053,8 @@ void traverse (int index, int level) {
     MPI_Barrier (COMM_BRIDGE_NODES);  
 
 #ifdef DEBUG
-    printf ("\n%d:%d:%d: myWeight = %d\n", myrank, coreID, nodeID, myWeight);
 #endif
+    printf ("\n%d:%d:%d: myWeight = %d\n", myrank, coreID, nodeID, myWeight);
   }
 
   void initTree(int n) {
@@ -1059,7 +1068,7 @@ void traverse (int index, int level) {
 
   //int main (int argc, char **argv) {
   
-  void init_(int argc, char **argv) { 
+void init_bgq(int argc, char **argv) { 
 
     double tIOStart, tIOEnd;
     int required=3, provided;
@@ -1202,7 +1211,7 @@ void traverse (int index, int level) {
 
     double tOStart = MPI_Wtime();
 
-      maxWeight = 1000;  //high
+    maxWeight = 1000;  //high
 /*
     if (coalesced == 1 && streams < 2)
       maxWeight = memAvail/(2 * count * ppn * sizeof(double));
@@ -1231,7 +1240,7 @@ void traverse (int index, int level) {
     printf("%d: overhead %6.3f\n", myrank, tOEnd-tOStart);
 #endif
 
-    MPI_Barrier (MPI_COMM_WORLD);
+    //MPI_Barrier (MPI_COMM_WORLD);
 
 #ifdef STATS
     //bgpminit(0, 0);
@@ -1262,9 +1271,18 @@ void traverse (int index, int level) {
     MPI_Barrier (MPI_COMM_WORLD);
 */
 
+    if (bridgeNodeInfo[1] == 1) { 
+      //if (sizeof(datatype) == sizeof(MPI_DOUBLE)) 
+      shuffledNodesData = (double **) bgq_malloc (myWeight * sizeof(double *));
+      req = (MPI_Request *) bgq_malloc (myWeight * sizeof(MPI_Request)); 
+#pragma omp parallel for
+      for (int i=0; i<myWeight; i++)  
+	      shuffledNodesData[i] = (double *) malloc (MAX_BUFSIZE * sizeof(double));
+    }
+
 }
 
-void fini_ () {
+void fini_bgq () {
 
     //* * * * * * * * * * * * * * * * * * * * End of IO  * * * * * * * * * * * * * * * * * * *
 
@@ -1273,6 +1291,7 @@ void fini_ () {
 #endif
 
     if (bridgeNodeInfo[1] == 1) {
+#pragma omp parallel for
       for (int i=0; i<myWeight; i++) free(shuffledNodesData[i]);
       free(shuffledNodesData);
     }

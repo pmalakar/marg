@@ -8,8 +8,10 @@
 #endif
 
 //EXTERNC 
-void init_(int, char **);
+#ifdef BGQ
+void init_bgq(int, char **);
 
-void fini_ ();
+void fini_bgq ();
+#endif
 
 #endif

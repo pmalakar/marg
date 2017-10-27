@@ -8,40 +8,48 @@
 boot-block --reboot
  
 NODES=$1
+startiter=$2
+
 EXE1=indep
 EXE2=marg
 
 for PROG in ${EXE2} ${EXE1}
 do
-for iter in 1 # 2 
+for iter in $startiter 
 do
-for THRD in 1 #2 4 8 16
+for THRD in 4 #2 4 8 16
 do
-for ppn in 4  
+for ppn in 1  
 do
-for MSG in 4 8 # 1024 2048 # 4096 8192
+for MSG in 16 # 1024 2048 # 4096 8192
 do 
- for collective in 0   
+ for collective in 0 #1 
 # for type in 0 1 2 
  do
  for blocking in 1 #1 
  do
- for streams in 0 #1 #2 #0 #1 2
- do
- for coalesced in 0 #1 
- do
- rm -f dummy*
+
+  #rm -f dummy*
+
 	RANKS=`echo "$NODES*$ppn"|bc`
-	OUTPUT=${PROG}_N${NODES}_R${ppn}_${MSG}_${collective}_${blocking} #_${type}_${streams}
+	OUTPUT=${PROG}_N${NODES}_R${ppn}_${iter}_${MSG}_${collective}_${blocking} #_${type}_${streams}
+
 	rm -f ${OUTPUT}.cobaltlog ${OUTPUT}.output ${OUTPUT}.error
+
 	echo 
 	echo "* * * * *"
 	echo 
 	echo "Starting $OUTPUT with numthreads=$THRD ppn=$ppn args=${MSG} ${collective} ${blocking} " # ${type} ${streams}"
 
-	runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs "OMP_MAX_NUM_THREADS=${THRD}" : ${PROG} ${MSG} ${collective} ${blocking} ${type} ${streams} > ${OUTPUT}
+	#runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs PAMID_ASYNC_PROGRESS=1 --envs "OMP_MAX_NUM_THREADS=${THRD}" : ${PROG} ${MSG} ${collective} ${blocking} > ${OUTPUT}
+
+  runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs PAMID_ASYNC_PROGRESS=1 --envs "OMP_MAX_NUM_THREADS=${THRD}" --envs PAMID_RZV_LOCAL=4M --envs "PAMID_STATISTICS=1" --envs "PAMID_VERBOSE=1" --envs PAMI_MEMORY_OPTIMIZED=1 --envs PAMID_COLLECTIVES=1 --envs PAMID_CONTEXT_POST=1 : ${PROG} ${MSG} ${collective} ${blocking} > ${OUTPUT}
+
+
+#  mv TestFile-512 TestFile-512-${OUTPUT}
 
 	continue;
+
 
  	rm -f dummy*
 	runjob --np $RANKS -p $ppn --block $COBALT_PARTNAME --verbose=INFO --envs "OMP_MAX_NUM_THREADS=${THRD}" --envs MUSPI_NUMINJFIFOS=2 MUSPI_NUMRECFIFOS=2 PAMID_RZV_LOCAL=4M --envs "PAMID_STATISTICS=1" --envs "PAMID_VERBOSE=1" : ${PROG} ${MSG} ${coalesced} ${blocking} ${type} ${streams} > ${OUTPUT}_numfifos_2_rzvlocal_4M
@@ -145,8 +153,8 @@ do
 	echo 
 	echo "* * * * *"
 	echo
-done 
-done 
+
+
 done 
 done 
 done 
