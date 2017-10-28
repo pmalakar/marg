@@ -14,18 +14,24 @@ ifeq ($(ve), vesta)
   CXX=mpixlcxx
   CFLAGS+=-qsmp=omp -g -pg 
   INC += -I/projects/Performance/preeti/utils	
+  LIBALGO = -L./ -lalgo
+  LIBS += $(LIBALGO) 
 else ifeq ($(ce), cetus)
   DEFINES += -DBGQ -DCETUS
   CC=mpixlc
   CXX=mpixlcxx
   CFLAGS+=-O2 -g -qmaxmem=-1 -qflag=w -pg
   INC += -I/projects/Performance/preeti/utils	
+  LIBALGO = -L./ -lalgo
+  LIBS += $(LIBALGO) 
 else ifeq ($(mi), mira)
   DEFINES += -DBGQ -DCETUS
   CC=mpixlc
   CXX=mpixlcxx
   CFLAGS+=-qmaxmem=-1 
   INC += -I/projects/Performance/preeti/utils	
+  LIBALGO = -L./ -lalgo
+  LIBS += $(LIBALGO) 
 else ifeq ($(co), cori)
   $(info $(co))
   CC=cc
@@ -46,10 +52,8 @@ DEFINES += -DDEBUG
 LIBHPM = -L/soft/perftools/hpctw/lib -lmpihpm 
 LIBBGPM = -L/bgsys/drivers/ppcfloor/bgpm/lib -lbgpm -lrt -lstdc++ 
 LIBMPITRACE =-L/soft/perftools/hpctw/lib -lmpitrace
-LIBUTILS =-L/projects/Performance/preeti/utils -lbgqutils 
 
-LIBALGO = -L./ -lalgo
-LIBS += $(LIBALGO) 
+LIBUTILS =-L/projects/Performance/preeti/utils -lbgqutils 
 
 SRCS = contiguous.cxx	
 

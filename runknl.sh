@@ -12,7 +12,6 @@
 
 EXE=./marg
 
-echo "Running Cobalt Job $COBALT_JOBID on $COBALT_PARTNAME."
 
 #io tracing
 export DXT_ENABLE_IO_TRACE=4
@@ -40,6 +39,7 @@ export MPICH_MPIIO_HINTS="*:cb_nodes=2"
 
 if [[ "$HOST" == *"theta"* ]]; then
   echo "theta"
+  echo "Running $COBALT_JOBID on $COBALT_PARTNAME."
   nodes=$COBALT_PARTSIZE
   jobid=${COBALT_JOBID}
   locfile=loc_${nodes}_${jobid}.txt
@@ -48,6 +48,7 @@ if [[ "$HOST" == *"theta"* ]]; then
   #python parsejobnodes.py theta.computenodes $locfile > $jobmapfile
 elif [[ "$HOST" == *"cori"* ]]; then
   echo "cori"
+  echo "Running $SLURM_JOBID on $SLURM_JOB_NODELIST"
   nodes=$SLURM_JOB_NUM_NODES
   jobid=${SLURM_JOBID}
   locfile=loc_${nodes}_${jobid}.txt
