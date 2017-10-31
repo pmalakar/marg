@@ -38,7 +38,7 @@ int SKIP = 1;
 int MAXTIMES = 10;
 int MAXTIMESD = 10;
 
-void startup_() ;
+//void startup_() ;
 void cleanup_() ;
 
 int writeFile(dataBlock *datum, int count) 
@@ -110,7 +110,8 @@ void file_write(dataBlock *datum) {
   //MPI_File_open (MPI_COMM_WORLD, fileNameFS, mode, MPI_INFO_NULL, &fileHandle);
   MPI_File_open (MPI_COMM_WORLD, testFileName, mode, MPI_INFO_NULL, &fileHandle);
 
-  startup_();
+  modifyInfo(fileHandle);
+
 #ifdef KNL
   //get_file_info(testFileName); //undefined error
 #endif 

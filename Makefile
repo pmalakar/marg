@@ -41,6 +41,8 @@ else ifeq ($(co), cori)
   DEFINES += -DKNL -DCORI 
   LIBLINFO=-L/global/cscratch1/sd/preeti/work/systest/theta/lnet -llinfo 
   INC += -I/global/cscratch1/sd/preeti/work/systest/theta/lnet
+  LIBALGO = -L./ -lmarg
+  LIBS += $(LIBALGO)
 else ifeq ($(th), theta)
   CC=cc
   CXX=CC
