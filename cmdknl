@@ -1,0 +1,4 @@
+CC -c marg.cxx -DKNL -DCORI 
+rm libmarg.a ; ar -cvq libmarg.a marg.o
+make clean -f Makefile
+make -f Makefile

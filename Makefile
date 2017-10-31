@@ -49,6 +49,8 @@ else ifeq ($(th), theta)
   DEFINES += -DKNL -DTHETA 
   LIBLINFO=-L/projects/Performance/preeti/work/systest/theta/lnet -llinfo 
   INC += -I/projects/Performance/preeti/work/systest/theta/lnet
+  LIBALGO = -L./ -lmarg
+  LIBS += $(LIBALGO)
 endif 
 
 DEFINES += -DDEBUG  
