@@ -10,10 +10,12 @@ th=$(findstring theta, ${HOSTNAME})
 ifeq ($(ve), vesta)
   $(info $(ve))
   DEFINES += -DBGQ -DVESTA
-  CC=mpixlc
-  CXX=mpixlcxx
-  CFLAGS+=-qsmp=omp -g -pg 
-  INC += -I/projects/Performance/preeti/utils	
+  CC=mpicc #mpixlc
+  CXX=mpicxx #mpixlcxx
+  CFLAGS+=-g -pg #-qsmp=omp -g -pg 
+  LIBS += -L/soft/libraries/mpich3/xl.legacy/lib
+  INC += -I/soft/libraries/mpich3/xl.legacy/include -I/bgsys/drivers/ppcfloor -I/bgsys/drivers/ppcfloor/spi/include/kernel/cnk -I/bgsys/drivers/ppcfloor/hwi/include/bqc
+  INC += -I/projects/Performance/preeti/utils
   LIBALGO = -L./ -lalgo
   LIBS += $(LIBALGO) 
 else ifeq ($(ce), cetus)
@@ -59,7 +61,11 @@ SRCS = contiguous.cxx
 
 OBJS = 	$(SRCS:.cxx=.o)
 
+ifeq ($(ve), vesta)
+TARGET = marg.mpi3
+else
 TARGET = marg
+endif
 
 all:    $(TARGET)
 		@echo Compilation done.
