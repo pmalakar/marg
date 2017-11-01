@@ -1,7 +1,7 @@
 #!/bin/bash -evx
 ####COBALT -q flat-quad
 #COBALT -t 30
-#COBALT -A Performance ###EarlyPerf_theta 
+#COBALT -A CSC250STDM10 ##Performance ###EarlyPerf_theta 
 
 #SBATCH -p debug
 #SBATCH -t 00:20:00
@@ -34,7 +34,6 @@ export KMP_AFFINITY=verbose
 export MPICH_VERSION_DISPLAY=1
 export MPICH_NEMESIS_ASYNC_PROGRESS=1
 export MPICH_ENV_DISPLAY=1
-export MPICH_MPIIO_HINTS="*:cb_nodes=2"
 
 
 if [[ "$HOST" == *"theta"* ]]; then
@@ -85,18 +84,24 @@ do
   APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
   fi
 
-  for STRIPECNT in 16 
+  for SC in 16 32 # STRIPE COUNT 
   do 
-   for STRIPESZ in 8M #2M  
+   for SZ in 8M 16M #32M #8M #2M  #STRIPE SIZE
    do
-    for size in 32 1024 4096
-    do
+    for agg in 8 16 32
+    do 
+    for bufsize in 16777216 67108864 
+    do 
+     for size in 1024 4096
+     do
      for collective in 0 1
      do
-      for blocking in 1 #0
-      do
+     for blocking in 1 #0
+     do
+    
+     export MPICH_MPIIO_HINTS="*:cb_nodes=${agg}:cb_buffer_size=${bufsize}"
 
-        OUTPUT=output_${nodes}_${RANKS}_R${ppn}_${STRIPECNT}_${STRIPESZ}_${size}_${collective}_${iter}_${jobid}
+     OUTPUT=output_${nodes}_${RANKS}_R${ppn}_${SC}_${SZ}_${agg}_${bufsize}_${size}_${collective}_${iter}_${jobid}
 
         ARG=" $size ${collective} ${blocking}"
         #ARG=" $size 0 0 1 0"
@@ -108,7 +113,7 @@ do
         FNAME=TestFile-${RANKS}
         rm -f $FNAME 2>/dev/null
         echo "Testing: echo $FNAME"
-        lfs setstripe -c ${STRIPECNT} -S ${STRIPESZ} $FNAME
+        lfs setstripe -c ${SC} -S ${SZ} $FNAME
         echo "Testing done: echo $FNAME"
         lfs getstripe $FNAME
 
@@ -126,6 +131,8 @@ do
 		      squeue -l > q.end.${OUTPUT}
         fi
 
+      done
+      done
       done
      done
     done
