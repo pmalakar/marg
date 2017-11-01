@@ -1,7 +1,7 @@
 #!/bin/bash -evx
 ####COBALT -q flat-quad
-#COBALT -t 30
-#COBALT -A CSC250STDM10 ##Performance ###EarlyPerf_theta 
+####COBALT -t 30
+#COBALT -A CSC250STDM10 #####Performance ###EarlyPerf_theta 
 
 #SBATCH -p debug
 #SBATCH -t 00:20:00
@@ -84,15 +84,15 @@ do
   APRUNPARAMS=" -n ${RANKS} -N ${ppn} -d 1 -j 1 -r 1 " #--attrs mcdram=cache:numa=quad "
   fi
 
-  for SC in 16 32 # STRIPE COUNT 
+  for SC in 8 16 32 # STRIPE COUNT 
   do 
-   for SZ in 8M 16M #32M #8M #2M  #STRIPE SIZE
+   for SZ in 8M 16M 24M #32M #8M #2M  #STRIPE SIZE
    do
-    for agg in 8 16 32
+    for agg in 16 32 64
     do 
     for bufsize in 16777216 67108864 
     do 
-     for size in 1024 4096
+     for size in 1024 4096 8192
      do
      for collective in 0 1
      do
@@ -101,7 +101,7 @@ do
     
      export MPICH_MPIIO_HINTS="*:cb_nodes=${agg}:cb_buffer_size=${bufsize}"
 
-     OUTPUT=output_${nodes}_${RANKS}_R${ppn}_${SC}_${SZ}_${agg}_${bufsize}_${size}_${collective}_${iter}_${jobid}
+     OUTPUT=output_${nodes}_${RANKS}_R${ppn}_${SC}_${SZ}_${agg}_${bufsize}_${size}_${collective}_${blocking}_${iter}_${jobid}
 
         ARG=" $size ${collective} ${blocking}"
         #ARG=" $size 0 0 1 0"
