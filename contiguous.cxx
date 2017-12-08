@@ -110,7 +110,7 @@ void file_write(dataBlock *datum) {
   //MPI_File_open (MPI_COMM_WORLD, fileNameFS, mode, MPI_INFO_NULL, &fileHandle);
   MPI_File_open (MPI_COMM_WORLD, testFileName, mode, MPI_INFO_NULL, &fileHandle);
 
-  modifyInfo(fileHandle);
+  if (rank == 0) modifyInfo(fileHandle);
 
 #ifdef KNL
   //get_file_info(testFileName); //undefined error
