@@ -46,9 +46,11 @@ else ifeq ($(co), cori)
 else ifeq ($(th), theta)
   CC=cc
   CXX=CC
-  DEFINES += -DKNL -DTHETA 
+  CFLAGS+=-O2 -g -dynamic 
+  DEFINES += -DTHETA -DKNL 
   LIBLINFO=-L/projects/Performance/preeti/work/systest/theta/lnet -llinfo 
   INC += -I/projects/Performance/preeti/work/systest/theta/lnet
+  INC += -I/projects/Performance/preeti/work/iobenchmarks/marg/knl
   LIBALGO = -L./ -lmarg
   LIBS += $(LIBALGO)
 endif 
@@ -81,5 +83,5 @@ $(TARGET): $(OBJS)
 		$(CXX) $(CFLAGS) -o $(TARGET) $(OBJS) $(INC) $(LIBS) $(DEFINES)   
 
 clean:
-		$(RM) *.o *~ $(TARGET)
+		$(RM) $(OBJS) *~ $(TARGET)
 
