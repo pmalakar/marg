@@ -12,12 +12,12 @@ int MPI_File_open()
 }
 */
 
-//void modifyInfo(MPI_File fileHandle)
-void modifyInfo(MPI_Info info)
+void modifyInfo(MPI_File fileHandle)
+//void modifyInfo(MPI_Info info)
 {
   int i;
 
-  //MPI_Info info;
+  MPI_Info info;
   char *keyname[2] = { "cb_nodes", "cb_buffer_size" };
   char keyvalue[2][MPI_MAX_INFO_VAL];
   
@@ -25,8 +25,8 @@ void modifyInfo(MPI_Info info)
 
   int flag;
 
- // MPI_File_get_info (fileHandle, &info);
-//  MPI_Info_get(info, keyname[cb_nodes], MPI_MAX_INFO_VAL, keyvalue[cb_nodes], &flag);
+  MPI_File_get_info (fileHandle, &info);
+  MPI_Info_get(info, keyname[cb_nodes], MPI_MAX_INFO_VAL, keyvalue[cb_nodes], &flag);
 //  if (!flag) puts ("cb_nodes not defined"); 
 //  else {
    // printf("cb value before %s\n", keyvalue[cb_nodes]);
@@ -58,7 +58,7 @@ void modifyInfo(MPI_Info info)
       printf("key = %s, value = %s\n", key, value);
   }
  
- 
+//when its not fileHandle 
   MPI_Info_free(&info);
 
 }

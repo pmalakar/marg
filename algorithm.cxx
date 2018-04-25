@@ -207,9 +207,7 @@ void reroute (MPI_File fh, MPI_Offset offset, void *buf,
       if (result != MPI_SUCCESS) 
         prnerror (result, "BN for MPI_File_write_at error:");
     }
-
   }
-
 }
 
 void reroutei (MPI_File fh, MPI_Offset offset, void *buf,

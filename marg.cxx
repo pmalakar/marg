@@ -1,16 +1,10 @@
+
 #include <mpi.h>
 #include <stdlib.h>
+
 #include "marg.h"
 
 char infoval[2][MPI_MAX_INFO_VAL];
-
-/*
-int MPI_File_open()
-{
-  if (myrank < 2) printf("new open function executed\n");
-  return PMPI_File_open(); 
-}
-*/
 
 //void modifyInfo(MPI_File fileHandle)
 void modifyInfo(MPI_Info info)
